@@ -6,6 +6,7 @@ public class WaveSpawner : MonoBehaviour
     public GameObject basicZombiePrefab;
     public GameObject runnerZombiePrefab;
     public GameObject tankZombiePrefab;
+    public GameObject smokerZombiePrefab;
     public Transform[] windows;
 
     public int currentWave = 0;
@@ -71,6 +72,9 @@ public class WaveSpawner : MonoBehaviour
     {
         if (currentWave >= 15 && tankZombiePrefab != null && Random.value < 0.3f)
             return tankZombiePrefab;
+
+        if (currentWave > 10 && smokerZombiePrefab != null && Random.value < 0.5f)
+            return smokerZombiePrefab;
 
         if (currentWave > 5 && runnerZombiePrefab != null && Random.value < 0.5f)
             return runnerZombiePrefab;

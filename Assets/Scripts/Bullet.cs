@@ -28,6 +28,14 @@ public class Bullet : MonoBehaviour
         {
             zombie.TakeDamage(damage);
             Destroy(gameObject);
+            return;
+        }
+
+        Smoker smoker = other.GetComponent<Smoker>();
+        if (smoker != null)
+        {
+            smoker.TakeDamage(damage);
+            Destroy(gameObject);
         }
     }
 }
