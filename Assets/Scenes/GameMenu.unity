@@ -3024,6 +3024,7 @@ MonoBehaviour:
   runnerZombiePrefab: {fileID: 6222529245454185750, guid: c557e2a16d0da574eadfc52a4f7247a1, type: 3}
   tankZombiePrefab: {fileID: 6222529245454185750, guid: e0d43bb6bd9f45e49aa9bd5ce37854b8, type: 3}
   smokerZombiePrefab: {fileID: 6222529245454185750, guid: 2d652044a5db1ad4abcd71aed23d0c05, type: 3}
+  bossZombiePrefab: {fileID: 6222529245454185750, guid: 7f9932e76f543474faceb2b24782253c, type: 3}
   windows:
   - {fileID: 796186252}
   - {fileID: 804445306}
@@ -3031,6 +3032,7 @@ MonoBehaviour:
   - {fileID: 574715268}
   currentWave: 0
   zombiesAlive: 0
+  bossCount: 0
 --- !u!4 &1877097405
 Transform:
   m_ObjectHideFlags: 0

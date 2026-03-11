@@ -36,6 +36,14 @@ public class Bullet : MonoBehaviour
         {
             smoker.TakeDamage(damage);
             Destroy(gameObject);
+            return;
+        }
+
+        Boss boss = other.GetComponent<Boss>();
+        if (boss != null)
+        {
+            boss.TakeDamage(damage);
+            Destroy(gameObject);
         }
     }
 }
