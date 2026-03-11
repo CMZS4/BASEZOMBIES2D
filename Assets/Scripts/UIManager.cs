@@ -15,15 +15,20 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI ammoText;
     public TextMeshProUGUI weapon2NameText;
 
+    [Header("Envanter")]
+    public TextMeshProUGUI healthPackText;
+
     PlayerController player;
     WaveSpawner waveSpawner;
     WeaponSystem weaponSystem;
+    InventorySystem inventory;
 
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
         waveSpawner = FindObjectOfType<WaveSpawner>();
         weaponSystem = FindObjectOfType<WeaponSystem>();
+        inventory = FindObjectOfType<InventorySystem>();
 
         hpBar.maxValue = player.maxHealth;
         hpBar.value = player.maxHealth;
@@ -36,15 +41,16 @@ public class UIManager : MonoBehaviour
         hpBar.value = player.currentHealth;
         waveText.text = "Wave " + waveSpawner.currentWave;
 
-        // Aktif silah
         var active = weaponSystem.ActiveWeapon;
         weaponNameText.text = active.weaponName;
         ammoText.text = active.currentAmmo + "/" + active.maxAmmo;
 
-        // 2. silah
         if (weaponSystem.secondWeaponIndex != -1)
             weapon2NameText.text = weaponSystem.weapons[weaponSystem.secondWeaponIndex].weaponName;
         else
             weapon2NameText.text = "Empty";
+
+        if (healthPackText != null)
+           healthPackText.text = "HP Pack: " + inventory.healthPackCount;
     }
 }

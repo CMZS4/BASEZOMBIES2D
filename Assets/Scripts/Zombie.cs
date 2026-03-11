@@ -67,13 +67,22 @@ public class Zombie : MonoBehaviour
         if (health <= 0) Die();
     }
 
-    void Die()
+   void Die()
+{
+    if (waveSpawner != null)
+        waveSpawner.OnZombieDied();
+
+    // Sağlık paketi düşürme
+    float dropChance = Mathf.Max(0.05f - (waveSpawner.currentWave * 0.001f), 0.005f);
+    if (Random.value < dropChance)
     {
-        if (waveSpawner != null)
-            waveSpawner.OnZombieDied();
-        Destroy(gameObject);
+        GameObject healthPackPrefab = Resources.Load<GameObject>("HealthPack");
+        if (healthPackPrefab != null)
+            Instantiate(healthPackPrefab, transform.position, Quaternion.identity);
     }
 
+    Destroy(gameObject);
+}
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
