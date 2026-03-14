@@ -749,7 +749,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 4
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1415,7 +1415,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 90
+  m_text: 60
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2546,6 +2546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   hpBar: {fileID: 548046445}
   waveText: {fileID: 1458376778}
+  timerText: {fileID: 981125332}
   weaponNameText: {fileID: 1253029937}
   ammoText: {fileID: 1873481578}
   weapon2NameText: {fileID: 347938265}
@@ -3161,6 +3162,9 @@ MonoBehaviour:
   currentWave: 0
   zombiesAlive: 0
   bossCount: 0
+  waveTimeRemaining: 0
+  waveActive: 0
+  windowBarricadeTimers: []
 --- !u!4 &1877097405
 Transform:
   m_ObjectHideFlags: 0

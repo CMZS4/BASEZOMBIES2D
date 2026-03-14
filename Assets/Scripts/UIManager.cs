@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Wave")]
     public TextMeshProUGUI waveText;
+    public TextMeshProUGUI timerText;
 
     [Header("Silah")]
     public TextMeshProUGUI weaponNameText;
@@ -41,6 +42,9 @@ public class UIManager : MonoBehaviour
         hpBar.value = player.currentHealth;
         waveText.text = "Wave " + waveSpawner.currentWave;
 
+        if (timerText != null)
+            timerText.text = Mathf.CeilToInt(waveSpawner.waveTimeRemaining) + "s";
+
         var active = weaponSystem.ActiveWeapon;
         weaponNameText.text = active.weaponName;
         ammoText.text = active.currentAmmo + "/" + active.maxAmmo;
@@ -51,6 +55,6 @@ public class UIManager : MonoBehaviour
             weapon2NameText.text = "Empty";
 
         if (healthPackText != null)
-           healthPackText.text = "HP Pack: " + inventory.healthPackCount;
+            healthPackText.text = "HP Pack: " + inventory.healthPackCount;
     }
 }

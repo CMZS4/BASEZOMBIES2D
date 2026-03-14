@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class WaveSpawner : MonoBehaviour
 {
@@ -13,15 +14,42 @@ public class WaveSpawner : MonoBehaviour
     public int currentWave = 0;
     public int zombiesAlive = 0;
     public int bossCount = 0;
+    public float waveTimeRemaining = 0f;
+    public bool waveActive = false;
 
     bool waitingForClaim = false;
     bool bossAlive = false;
+    float baseWaveTime = 90f;
+    float minWaveTime = 60f;
+
     ClaimUI claimUI;
+
+    public float[] windowBarricadeTimers;
 
     void Start()
     {
         claimUI = FindObjectOfType<ClaimUI>();
+        windowBarricadeTimers = new float[windows.Length];
         StartCoroutine(StartNextWave());
+    }
+
+    void Update()
+    {
+        for (int i = 0; i < windowBarricadeTimers.Length; i++)
+        {
+            if (windowBarricadeTimers[i] > 0)
+                windowBarricadeTimers[i] -= Time.deltaTime;
+        }
+
+        if (waveActive)
+        {
+            waveTimeRemaining -= Time.deltaTime;
+            if (waveTimeRemaining <= 0)
+            {
+                waveTimeRemaining = 0;
+                waveActive = false;
+            }
+        }
     }
 
     IEnumerator StartNextWave()
@@ -35,8 +63,12 @@ public class WaveSpawner : MonoBehaviour
             currentWave++;
             Debug.Log("=== WAVE " + currentWave + " BAŞLADI ===");
 
-            // Her 10 wave'de boss spawn et
-            if (currentWave % 10 == 0 && bossCount < 8 && bossZombiePrefab != null)
+            bool isBossWave = currentWave % 10 == 0 && bossCount < 8 && bossZombiePrefab != null;
+            float waveTime = isBossWave ? 120f : Mathf.Max(baseWaveTime - (currentWave - 1) * 2f, minWaveTime);
+            waveTimeRemaining = waveTime;
+            waveActive = true;
+
+            if (isBossWave)
             {
                 bossAlive = true;
                 bossCount++;
@@ -48,7 +80,7 @@ public class WaveSpawner : MonoBehaviour
 
             yield return StartCoroutine(SpawnWave());
 
-            yield return new WaitUntil(() => zombiesAlive <= 0 && !bossAlive);
+            yield return new WaitUntil(() => !waveActive);
 
             Debug.Log("=== WAVE " + currentWave + " BİTTİ ===");
 
@@ -65,19 +97,34 @@ public class WaveSpawner : MonoBehaviour
     }
 
     IEnumerator SpawnWave()
+{
+    float spawnInterval = 2f;
+    float elapsed = 0f;
+
+    while (waveActive)
     {
-        int zombieCount = 4;
+        elapsed += spawnInterval;
+        if (elapsed > waveTimeRemaining + 5f) yield break;
 
-        for (int i = 0; i < zombieCount; i++)
+        List<int> availableWindows = new List<int>();
+        for (int w = 0; w < windows.Length; w++)
         {
-            Transform window = windows[Random.Range(0, windows.Length)];
-            GameObject prefab = GetZombiePrefab();
-            Instantiate(prefab, window.position, Quaternion.identity);
-            zombiesAlive++;
-            yield return new WaitForSeconds(1f);
+            if (windowBarricadeTimers[w] <= 0)
+                availableWindows.Add(w);
         }
-    }
 
+        if (availableWindows.Count > 0)
+        {
+            // Her available pencereden random zombie spawn et
+            int windowIndex = availableWindows[Random.Range(0, availableWindows.Count)];
+            GameObject prefab = GetZombiePrefab();
+            Instantiate(prefab, windows[windowIndex].position, Quaternion.identity);
+            zombiesAlive++;
+        }
+
+        yield return new WaitForSeconds(spawnInterval);
+    }
+}
     GameObject GetZombiePrefab()
     {
         if (currentWave >= 15 && tankZombiePrefab != null && Random.value < 0.3f)
@@ -107,5 +154,14 @@ public class WaveSpawner : MonoBehaviour
     public void ContinueGame()
     {
         waitingForClaim = false;
+    }
+
+    public void PlaceBarricade(int windowIndex)
+    {
+        if (windowIndex >= 0 && windowIndex < windowBarricadeTimers.Length)
+        {
+            windowBarricadeTimers[windowIndex] = 30f;
+            Debug.Log("Barikat kuruldu! Pencere " + windowIndex + " 30 saniye kapalı.");
+        }
     }
 }
