@@ -55,6 +55,6 @@ public class UIManager : MonoBehaviour
             weapon2NameText.text = "Empty";
 
         if (healthPackText != null)
-            healthPackText.text = "HP Pack: " + inventory.healthPackCount;
+            healthPackText.text = "HP: " + inventory.healthPackCount + " | B: " + inventory.barricadeCount;
     }
 }

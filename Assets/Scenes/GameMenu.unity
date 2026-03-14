@@ -2769,6 +2769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventorySystem
   healthPackCount: 0
+  barricadeCount: 3
 --- !u!1 &1798793295
 GameObject:
   m_ObjectHideFlags: 0
