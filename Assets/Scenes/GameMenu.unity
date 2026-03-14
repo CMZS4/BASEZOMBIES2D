@@ -749,7 +749,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2753,31 +2753,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c64d20879a4fc4d8076d36841f113b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSystem
-  weapons:
-  - weaponName: Pistol
-    damage: 1
-    fireRate: 2
-    maxAmmo: 12
-    currentAmmo: 12
-    dropRateBonus: 0
-  - weaponName: AK47
-    damage: 3
-    fireRate: 5
-    maxAmmo: 30
-    currentAmmo: 30
-    dropRateBonus: 0.05
-  - weaponName: MP5
-    damage: 2
-    fireRate: 8
-    maxAmmo: 25
-    currentAmmo: 25
-    dropRateBonus: 0.02
-  - weaponName: M249
-    damage: 4
-    fireRate: 10
-    maxAmmo: 100
-    currentAmmo: 100
-    dropRateBonus: 0.08
   activeWeaponIndex: 0
   secondWeaponIndex: -1
 --- !u!114 &1762888338
