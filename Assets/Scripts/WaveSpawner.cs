@@ -14,6 +14,7 @@ public class WaveSpawner : MonoBehaviour
     public int currentWave = 0;
     public int zombiesAlive = 0;
     public int bossCount = 0;
+    public int totalKills = 0; // YENİ
     public float waveTimeRemaining = 0f;
     public bool waveActive = false;
 
@@ -97,34 +98,34 @@ public class WaveSpawner : MonoBehaviour
     }
 
     IEnumerator SpawnWave()
-{
-    float spawnInterval = 2f;
-    float elapsed = 0f;
-
-    while (waveActive)
     {
-        elapsed += spawnInterval;
-        if (elapsed > waveTimeRemaining + 5f) yield break;
+        float spawnInterval = 2f;
+        float elapsed = 0f;
 
-        List<int> availableWindows = new List<int>();
-        for (int w = 0; w < windows.Length; w++)
+        while (waveActive)
         {
-            if (windowBarricadeTimers[w] <= 0)
-                availableWindows.Add(w);
-        }
+            elapsed += spawnInterval;
+            if (elapsed > waveTimeRemaining + 5f) yield break;
 
-        if (availableWindows.Count > 0)
-        {
-            // Her available pencereden random zombie spawn et
-            int windowIndex = availableWindows[Random.Range(0, availableWindows.Count)];
-            GameObject prefab = GetZombiePrefab();
-            Instantiate(prefab, windows[windowIndex].position, Quaternion.identity);
-            zombiesAlive++;
-        }
+            List<int> availableWindows = new List<int>();
+            for (int w = 0; w < windows.Length; w++)
+            {
+                if (windowBarricadeTimers[w] <= 0)
+                    availableWindows.Add(w);
+            }
 
-        yield return new WaitForSeconds(spawnInterval);
+            if (availableWindows.Count > 0)
+            {
+                int windowIndex = availableWindows[Random.Range(0, availableWindows.Count)];
+                GameObject prefab = GetZombiePrefab();
+                Instantiate(prefab, windows[windowIndex].position, Quaternion.identity);
+                zombiesAlive++;
+            }
+
+            yield return new WaitForSeconds(spawnInterval);
+        }
     }
-}
+
     GameObject GetZombiePrefab()
     {
         if (currentWave >= 15 && tankZombiePrefab != null && Random.value < 0.3f)
@@ -142,11 +143,13 @@ public class WaveSpawner : MonoBehaviour
     public void OnZombieDied()
     {
         zombiesAlive--;
+        totalKills++; // YENİ
     }
 
     public void OnBossDied()
     {
         zombiesAlive--;
+        totalKills++; // YENİ
         bossAlive = false;
         Debug.Log("Boss öldü!");
     }

@@ -103,7 +103,12 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
-        Debug.Log("PLAYER ÖLDÜ - Game Over");
         gameObject.SetActive(false);
+
+        WaveSpawner waveSpawner = FindObjectOfType<WaveSpawner>();
+        int wave = waveSpawner != null ? waveSpawner.currentWave : 0;
+        int kills = waveSpawner != null ? waveSpawner.totalKills : 0;
+
+        GameOverManager.instance.ShowGameOver(wave, kills, 0);
     }
 }

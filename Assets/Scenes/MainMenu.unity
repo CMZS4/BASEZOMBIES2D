@@ -425,7 +425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4d44b5746204f04e9c07b647a691f79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuManager
-  mainPanel: {fileID: 0}
+  mainPanel: {fileID: 824478772}
   settingsPanel: {fileID: 0}
   inventoryPanel: {fileID: 0}
   shopPanel: {fileID: 0}
