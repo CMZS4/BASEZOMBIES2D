@@ -95,7 +95,7 @@ public class Zombie : MonoBehaviour
         WeaponSystem weaponSystem = player?.GetComponent<WeaponSystem>();
         float weaponBonus = weaponSystem != null ? weaponSystem.ActiveWeapon.dropRateBonus : 0f;
         float zombieBonus = GetZombieDropBonus();
-        float totalDropRate = 1f; // %100 test için
+        float totalDropRate = (14f + weaponBonus + zombieBonus) / 100f;
 
         if (Random.value < totalDropRate)
         {
