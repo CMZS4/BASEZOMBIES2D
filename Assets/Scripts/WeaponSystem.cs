@@ -24,10 +24,8 @@ public class Weapon
 }
 
 public class WeaponSystem : MonoBehaviour
-{
-    public int activeWeaponIndex = 0;
-    public int secondWeaponIndex = -1;
-
+{public int activeWeaponIndex = 0;
+public int secondWeaponIndex = 3; // 3 = AK47
     private Weapon[] _weapons;
 
     public Weapon[] weapons

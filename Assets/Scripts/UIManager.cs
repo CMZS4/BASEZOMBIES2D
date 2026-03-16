@@ -11,13 +11,17 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI waveText;
     public TextMeshProUGUI timerText;
 
-    [Header("Silah")]
+    [Header("Silah 1 (Aktif)")]
     public TextMeshProUGUI weaponNameText;
     public TextMeshProUGUI ammoText;
+
+    [Header("Silah 2 (Pasif)")]
     public TextMeshProUGUI weapon2NameText;
+    public TextMeshProUGUI ammo2Text;
 
     [Header("Envanter")]
     public TextMeshProUGUI healthPackText;
+    public TextMeshProUGUI fragmentText;
 
     PlayerController player;
     WaveSpawner waveSpawner;
@@ -39,22 +43,40 @@ public class UIManager : MonoBehaviour
     {
         if (player == null) return;
 
+        // HP
         hpBar.value = player.currentHealth;
-        waveText.text = "Wave " + waveSpawner.currentWave;
 
+        // Wave + Timer
+        waveText.text = "Wave " + waveSpawner.currentWave;
         if (timerText != null)
             timerText.text = Mathf.CeilToInt(waveSpawner.waveTimeRemaining) + "s";
 
+        // Aktif silah
         var active = weaponSystem.ActiveWeapon;
         weaponNameText.text = active.weaponName;
         ammoText.text = active.currentAmmo + "/" + active.maxAmmo;
 
+        // Pasif silah
         if (weaponSystem.secondWeaponIndex != -1)
-            weapon2NameText.text = weaponSystem.weapons[weaponSystem.secondWeaponIndex].weaponName;
+        {
+            var second = weaponSystem.weapons[weaponSystem.secondWeaponIndex];
+            weapon2NameText.text = second.weaponName;
+            if (ammo2Text != null)
+                ammo2Text.text = second.currentAmmo + "/" + second.maxAmmo;
+        }
         else
+        {
             weapon2NameText.text = "Empty";
+            if (ammo2Text != null)
+                ammo2Text.text = "";
+        }
 
+        // Envanter
         if (healthPackText != null)
             healthPackText.text = "HP: " + inventory.healthPackCount + " | B: " + inventory.barricadeCount;
+
+        // Fragment
+        if (fragmentText != null && FragmentManager.instance != null)
+            fragmentText.text = "Fragments: " + FragmentManager.instance.fragmentCount;
     }
 }
