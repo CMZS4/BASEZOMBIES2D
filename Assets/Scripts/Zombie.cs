@@ -11,20 +11,22 @@ public class Zombie : MonoBehaviour
     public float damageCooldown = 0.5f;
     public Slider hpBar;
 
+    const float PLAYER_SPEED = 10f;
+    const float RUNNER_MAX_SPEED_RATIO = 0.9f;
+
     Transform player;
     WaveSpawner waveSpawner;
     Rigidbody2D rb;
     float lastDamageTime;
     bool touchingPlayer = false;
 
-    // Her zombie tipinin fragment drop bonusu
     float GetZombieDropBonus()
     {
         switch (zombieType)
         {
-            case ZombieType.Runner: return 3f;  // +%3
-            case ZombieType.Tank:   return 2f;  // +%2
-            default:                return 0f;  // Basic +%0
+            case ZombieType.Runner: return 3f;
+            case ZombieType.Tank:   return 2f;
+            default:                return 0f;
         }
     }
 
@@ -34,15 +36,26 @@ public class Zombie : MonoBehaviour
         waveSpawner = FindObjectOfType<WaveSpawner>();
         rb = GetComponent<Rigidbody2D>();
 
+        int wave = waveSpawner != null ? waveSpawner.currentWave : 1;
+        float waveMultiplier = 1f + (wave - 1) * 0.01f; // her wave %1 artar
+
         switch (zombieType)
         {
             case ZombieType.Runner:
-                speed = 3.9f;
-                health = 2;
+                float runnerSpeed = 3.9f; // base hız sabit
+                // Runner hızı oyuncu hızının %90'ını geçemez
+                speed = Mathf.Min(runnerSpeed, PLAYER_SPEED * RUNNER_MAX_SPEED_RATIO);
+                health = Mathf.RoundToInt(2 * waveMultiplier); // can artar
                 break;
+
             case ZombieType.Tank:
-                speed = 1f;
-                health = 6;
+                speed = Mathf.Min(1f * waveMultiplier, PLAYER_SPEED * 0.5f); // max oyuncu hızının %50si
+                health = Mathf.RoundToInt(6 * waveMultiplier);
+                break;
+
+            default: // Basic
+                speed = Mathf.Min(2f * waveMultiplier, PLAYER_SPEED * 0.7f); // max oyuncu hızının %70i
+                health = Mathf.RoundToInt(3 * waveMultiplier);
                 break;
         }
 
@@ -82,7 +95,6 @@ public class Zombie : MonoBehaviour
         if (waveSpawner != null)
             waveSpawner.OnZombieDied();
 
-        // Health pack drop
         float dropChance = Mathf.Max(0.05f - (waveSpawner.currentWave * 0.001f), 0.005f);
         if (Random.value < dropChance)
         {
@@ -91,7 +103,6 @@ public class Zombie : MonoBehaviour
                 Instantiate(healthPackPrefab, transform.position, Quaternion.identity);
         }
 
-        // Fragment drop
         WeaponSystem weaponSystem = player?.GetComponent<WeaponSystem>();
         float weaponBonus = weaponSystem != null ? weaponSystem.ActiveWeapon.dropRateBonus : 0f;
         float zombieBonus = GetZombieDropBonus();
@@ -101,7 +112,10 @@ public class Zombie : MonoBehaviour
         {
             GameObject fragmentPrefab = Resources.Load<GameObject>("Fragment");
             if (fragmentPrefab != null)
-                Instantiate(fragmentPrefab, transform.position, Quaternion.identity);
+            {
+                Vector2 offset = Random.insideUnitCircle * 0.5f;
+                Instantiate(fragmentPrefab, transform.position + (Vector3)offset, Quaternion.identity);
+            }
         }
 
         Destroy(gameObject);

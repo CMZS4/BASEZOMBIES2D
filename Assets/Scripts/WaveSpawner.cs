@@ -14,17 +14,18 @@ public class WaveSpawner : MonoBehaviour
     public int currentWave = 0;
     public int zombiesAlive = 0;
     public int bossCount = 0;
-    public int totalKills = 0; // YENİ
+    public int totalKills = 0;
     public float waveTimeRemaining = 0f;
     public bool waveActive = false;
 
     bool waitingForClaim = false;
     bool bossAlive = false;
-    float baseWaveTime = 90f;
     float minWaveTime = 60f;
+    float maxWaveTime = 90f;
+    float waveTimeIncrement = 2f;
+    int baseZombieCount = 30;
 
     ClaimUI claimUI;
-
     public float[] windowBarricadeTimers;
 
     void Start()
@@ -65,9 +66,17 @@ public class WaveSpawner : MonoBehaviour
             Debug.Log("=== WAVE " + currentWave + " BAŞLADI ===");
 
             bool isBossWave = currentWave % 10 == 0 && bossCount < 8 && bossZombiePrefab != null;
-            float waveTime = isBossWave ? 120f : Mathf.Max(baseWaveTime - (currentWave - 1) * 2f, minWaveTime);
+
+            float waveTime = isBossWave ? 120f :
+                Mathf.Min(minWaveTime + (currentWave - 1) * waveTimeIncrement, maxWaveTime);
+
+            int zombieCount = baseZombieCount + (currentWave - 1) * 2;
+            float spawnInterval = waveTime / zombieCount;
+
             waveTimeRemaining = waveTime;
             waveActive = true;
+
+            Debug.Log($"Wave {currentWave} | Süre: {waveTime}s | Zombie: {zombieCount} | Interval: {spawnInterval:F1}s");
 
             if (isBossWave)
             {
@@ -79,8 +88,7 @@ public class WaveSpawner : MonoBehaviour
                 Debug.Log("BOSS SPAWNED! Boss #" + bossCount);
             }
 
-            yield return StartCoroutine(SpawnWave());
-
+            yield return StartCoroutine(SpawnWave(zombieCount, spawnInterval));
             yield return new WaitUntil(() => !waveActive);
 
             Debug.Log("=== WAVE " + currentWave + " BİTTİ ===");
@@ -92,21 +100,17 @@ public class WaveSpawner : MonoBehaviour
             }
             else
             {
-                yield return new WaitForSeconds(3f);
+                yield return new WaitForSeconds(5f);
             }
         }
     }
 
-    IEnumerator SpawnWave()
+    IEnumerator SpawnWave(int zombieCount, float spawnInterval)
     {
-        float spawnInterval = 2f;
-        float elapsed = 0f;
+        int spawned = 0;
 
-        while (waveActive)
+        while (waveActive && spawned < zombieCount)
         {
-            elapsed += spawnInterval;
-            if (elapsed > waveTimeRemaining + 5f) yield break;
-
             List<int> availableWindows = new List<int>();
             for (int w = 0; w < windows.Length; w++)
             {
@@ -120,6 +124,7 @@ public class WaveSpawner : MonoBehaviour
                 GameObject prefab = GetZombiePrefab();
                 Instantiate(prefab, windows[windowIndex].position, Quaternion.identity);
                 zombiesAlive++;
+                spawned++;
             }
 
             yield return new WaitForSeconds(spawnInterval);
@@ -128,14 +133,21 @@ public class WaveSpawner : MonoBehaviour
 
     GameObject GetZombiePrefab()
     {
+        // Wave 15+: Tank ekle (%30)
         if (currentWave >= 15 && tankZombiePrefab != null && Random.value < 0.3f)
             return tankZombiePrefab;
 
-        if (currentWave > 10 && smokerZombiePrefab != null && Random.value < 0.5f)
+        // Wave 10+: Smoker ekle (%20)
+        if (currentWave >= 10 && smokerZombiePrefab != null && Random.value < 0.2f)
             return smokerZombiePrefab;
 
-        if (currentWave > 5 && runnerZombiePrefab != null && Random.value < 0.5f)
-            return runnerZombiePrefab;
+        // Wave 5+: Runner ekle (wave başına %10, max %50)
+        if (currentWave >= 5 && runnerZombiePrefab != null)
+        {
+            float runnerChance = Mathf.Min(0.10f + (currentWave - 5) * 0.05f, 0.50f);
+            if (Random.value < runnerChance)
+                return runnerZombiePrefab;
+        }
 
         return basicZombiePrefab;
     }
@@ -143,13 +155,13 @@ public class WaveSpawner : MonoBehaviour
     public void OnZombieDied()
     {
         zombiesAlive--;
-        totalKills++; // YENİ
+        totalKills++;
     }
 
     public void OnBossDied()
     {
         zombiesAlive--;
-        totalKills++; // YENİ
+        totalKills++;
         bossAlive = false;
         Debug.Log("Boss öldü!");
     }
