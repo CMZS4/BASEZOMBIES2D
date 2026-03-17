@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ClaimUI : MonoBehaviour
 {
     public static bool panelAcik = false;
 
     public GameObject claimPanel;
+    public TextMeshProUGUI fragmentInfoText;
 
     Button continueButton;
     Button claimButton;
@@ -28,12 +30,17 @@ public class ClaimUI : MonoBehaviour
     {
         claimPanel.SetActive(true);
         panelAcik = true;
+        Time.timeScale = 0f; // oyunu dondur
+
+        if (fragmentInfoText != null && FragmentManager.instance != null)
+            fragmentInfoText.text = "Fragments: " + FragmentManager.instance.GetFragments();
     }
 
     void OnContinue()
     {
         claimPanel.SetActive(false);
         panelAcik = false;
+        Time.timeScale = 1f; // oyunu devam ettir
         waveSpawner.ContinueGame();
     }
 
@@ -41,7 +48,16 @@ public class ClaimUI : MonoBehaviour
     {
         claimPanel.SetActive(false);
         panelAcik = false;
-        Debug.Log("TOKENLAR CLAIM EDİLDİ!");
-        FindObjectOfType<PlayerController>().Die();
+        Time.timeScale = 1f;
+
+        int fragments = FragmentManager.instance != null ? FragmentManager.instance.GetFragments() : 0;
+        Debug.Log("CLAIMED! Fragments: " + fragments);
+
+        WaveSpawner ws = FindObjectOfType<WaveSpawner>();
+        int wave = ws != null ? ws.currentWave : 0;
+        int kills = ws != null ? ws.totalKills : 0;
+
+        GameOverManager.instance.ShowGameOver(wave, kills, fragments);
+        FragmentManager.instance?.ResetFragments();
     }
 }

@@ -3876,6 +3876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClaimUI
   claimPanel: {fileID: 2068152147}
+  fragmentInfoText: {fileID: 0}
 --- !u!114 &1535008688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3891,7 +3892,7 @@ MonoBehaviour:
   gameOverPanel: {fileID: 195910927}
   waveText: {fileID: 1278025292}
   killText: {fileID: 660195135}
-  tokenText: {fileID: 1998694274}
+  fragmentText: {fileID: 633354159}
 --- !u!114 &1535008689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3905,7 +3906,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FragmentManager
   fragmentCount: 0
-  fragmentText: {fileID: 633354159}
+  fragmentText: {fileID: 1998694274}
 --- !u!1 &1762888331
 GameObject:
   m_ObjectHideFlags: 0

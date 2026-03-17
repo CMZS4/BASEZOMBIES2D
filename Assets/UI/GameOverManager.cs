@@ -11,7 +11,7 @@ public class GameOverManager : MonoBehaviour
     [Header("Texts")]
     public TextMeshProUGUI waveText;
     public TextMeshProUGUI killText;
-    public TextMeshProUGUI tokenText;
+    public TextMeshProUGUI fragmentText; // token → fragment
 
     public static GameOverManager instance;
 
@@ -25,14 +25,14 @@ public class GameOverManager : MonoBehaviour
         gameOverPanel.SetActive(false);
     }
 
-    public void ShowGameOver(int wave, int kills, int tokens)
+    public void ShowGameOver(int wave, int kills, int fragments)
     {
         gameOverPanel.SetActive(true);
-        Time.timeScale = 0f; // oyunu dondurur
+        Time.timeScale = 0f;
 
         waveText.text = "Wave Reached: " + wave;
         killText.text = "Zombies Killed: " + kills;
-        tokenText.text = "Tokens Earned: " + tokens;
+        fragmentText.text = "Fragments Claimed: " + fragments; // token → fragments
     }
 
     public void OnPlayAgain()
