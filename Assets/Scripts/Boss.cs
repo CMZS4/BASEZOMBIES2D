@@ -12,6 +12,7 @@ public class Boss : MonoBehaviour
     public int shockwaveDamage = 2;
     public int boulderDamage = 3;
     public GameObject boulderPrefab;
+    public GameObject blindBoxPrefab; // YENİ
     public Slider hpBar;
 
     Transform player;
@@ -78,20 +79,15 @@ public class Boss : MonoBehaviour
         Vector2 direction = (player.position - transform.position).normalized;
         GameObject boulder = Instantiate(boulderPrefab, transform.position, Quaternion.identity);
         boulder.GetComponent<BossBoulder>().SetDirection(direction, boulderDamage);
-        Debug.Log("Boss taş attı!");
     }
 
     void Shockwave()
     {
-        Debug.Log("Boss şok dalgası!");
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, shockwaveRadius);
         foreach (Collider2D hit in hits)
         {
             if (hit.CompareTag("Player"))
-            {
                 hit.GetComponent<PlayerController>().TakeDamage(shockwaveDamage);
-                Debug.Log("Şok dalgası player'a çarptı!");
-            }
         }
     }
 
@@ -104,9 +100,17 @@ public class Boss : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("BOSS ÖLDÜ!");
         if (waveSpawner != null)
             waveSpawner.OnBossDied();
+
+        // Blind Box drop
+        if (blindBoxPrefab != null)
+        {
+            Vector2 offset = Random.insideUnitCircle * 0.5f;
+            Instantiate(blindBoxPrefab, transform.position + (Vector3)offset, Quaternion.identity);
+            Debug.Log("Boss Blind Box düşürdü!");
+        }
+
         Destroy(gameObject);
     }
 

@@ -4504,7 +4504,7 @@ MonoBehaviour:
   - {fileID: 804445306}
   - {fileID: 2037132087}
   - {fileID: 574715268}
-  currentWave: 0
+  currentWave: 9
   zombiesAlive: 0
   bossCount: 0
   totalKills: 0

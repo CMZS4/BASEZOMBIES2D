@@ -493,7 +493,8 @@ MonoBehaviour:
   shockwaveDamage: 2
   boulderDamage: 3
   boulderPrefab: {fileID: 3955311386812818787, guid: f1fcc2ae8f8b7bc40ba5ed3dc1b0e872, type: 3}
-  hpBar: {fileID: 0}
+  blindBoxPrefab: {fileID: 96993400614020320, guid: 2cf0c83639f08ac4bb3c17b264910012, type: 3}
+  hpBar: {fileID: 8944321705471576657}
 --- !u!1 &6870680162245380604
 GameObject:
   m_ObjectHideFlags: 0

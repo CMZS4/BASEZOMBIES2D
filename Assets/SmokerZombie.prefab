@@ -489,7 +489,7 @@ MonoBehaviour:
   health: 4
   shootInterval: 5
   acidBulletPrefab: {fileID: 8398192909713911795, guid: 85b32450da54da8489f38ef083f6c21f, type: 3}
-  hpBar: {fileID: 0}
+  hpBar: {fileID: 8944321705471576657}
 --- !u!1 &6870680162245380604
 GameObject:
   m_ObjectHideFlags: 0
