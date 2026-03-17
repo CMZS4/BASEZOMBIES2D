@@ -14,6 +14,8 @@ public class Zombie : MonoBehaviour
     const float PLAYER_SPEED = 10f;
     const float RUNNER_MAX_SPEED_RATIO = 0.9f;
 
+    string[] ammoPrefabNames = { "Ammo_45ACP", "Ammo_545", "Ammo_762", "Ammo_12gauge", "Ammo_556" };
+
     Transform player;
     WaveSpawner waveSpawner;
     Rigidbody2D rb;
@@ -37,24 +39,20 @@ public class Zombie : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         int wave = waveSpawner != null ? waveSpawner.currentWave : 1;
-        float waveMultiplier = 1f + (wave - 1) * 0.01f; // her wave %1 artar
+        float waveMultiplier = 1f + (wave - 1) * 0.01f;
 
         switch (zombieType)
         {
             case ZombieType.Runner:
-                float runnerSpeed = 3.9f; // base hız sabit
-                // Runner hızı oyuncu hızının %90'ını geçemez
-                speed = Mathf.Min(runnerSpeed, PLAYER_SPEED * RUNNER_MAX_SPEED_RATIO);
-                health = Mathf.RoundToInt(2 * waveMultiplier); // can artar
+                speed = Mathf.Min(3.9f, PLAYER_SPEED * RUNNER_MAX_SPEED_RATIO);
+                health = Mathf.RoundToInt(2 * waveMultiplier);
                 break;
-
             case ZombieType.Tank:
-                speed = Mathf.Min(1f * waveMultiplier, PLAYER_SPEED * 0.5f); // max oyuncu hızının %50si
+                speed = Mathf.Min(1f * waveMultiplier, PLAYER_SPEED * 0.5f);
                 health = Mathf.RoundToInt(6 * waveMultiplier);
                 break;
-
-            default: // Basic
-                speed = Mathf.Min(2f * waveMultiplier, PLAYER_SPEED * 0.7f); // max oyuncu hızının %70i
+            default:
+                speed = Mathf.Min(2f * waveMultiplier, PLAYER_SPEED * 0.7f);
                 health = Mathf.RoundToInt(3 * waveMultiplier);
                 break;
         }
@@ -95,6 +93,7 @@ public class Zombie : MonoBehaviour
         if (waveSpawner != null)
             waveSpawner.OnZombieDied();
 
+        // Health pack drop
         float dropChance = Mathf.Max(0.05f - (waveSpawner.currentWave * 0.001f), 0.005f);
         if (Random.value < dropChance)
         {
@@ -103,6 +102,7 @@ public class Zombie : MonoBehaviour
                 Instantiate(healthPackPrefab, transform.position, Quaternion.identity);
         }
 
+        // Fragment drop
         WeaponSystem weaponSystem = player?.GetComponent<WeaponSystem>();
         float weaponBonus = weaponSystem != null ? weaponSystem.ActiveWeapon.dropRateBonus : 0f;
         float zombieBonus = GetZombieDropBonus();
@@ -115,6 +115,19 @@ public class Zombie : MonoBehaviour
             {
                 Vector2 offset = Random.insideUnitCircle * 0.5f;
                 Instantiate(fragmentPrefab, transform.position + (Vector3)offset, Quaternion.identity);
+            }
+        }
+
+        // Mermi drop - %6 ihtimalle
+        if (Random.value < 0.06f)
+        {
+            int randomIndex = Random.Range(0, ammoPrefabNames.Length);
+            string prefabName = ammoPrefabNames[randomIndex];
+            GameObject ammoPrefab = Resources.Load<GameObject>(prefabName);
+            if (ammoPrefab != null)
+            {
+                Vector2 offset2 = Random.insideUnitCircle * 0.5f;
+                Instantiate(ammoPrefab, transform.position + (Vector3)offset2, Quaternion.identity);
             }
         }
 

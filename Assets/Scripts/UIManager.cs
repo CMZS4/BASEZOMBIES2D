@@ -54,7 +54,12 @@ public class UIManager : MonoBehaviour
         // Aktif silah
         var active = weaponSystem.ActiveWeapon;
         weaponNameText.text = active.weaponName;
-        ammoText.text = active.currentAmmo + "/" + active.maxAmmo;
+
+        // Pistol sınırsız, diğerleri şarjör/yedek göster
+        if (active.unlimitedAmmo)
+            ammoText.text = active.currentAmmo + "/" + active.maxAmmo + " ∞";
+        else
+            ammoText.text = active.currentAmmo + "/" + active.maxAmmo + " | " + active.currentReserve;
 
         // Pasif silah
         if (weaponSystem.secondWeaponIndex != -1)
@@ -62,7 +67,12 @@ public class UIManager : MonoBehaviour
             var second = weaponSystem.weapons[weaponSystem.secondWeaponIndex];
             weapon2NameText.text = second.weaponName;
             if (ammo2Text != null)
-                ammo2Text.text = second.currentAmmo + "/" + second.maxAmmo;
+            {
+                if (second.unlimitedAmmo)
+                    ammo2Text.text = second.currentAmmo + "/" + second.maxAmmo + " ∞";
+                else
+                    ammo2Text.text = second.currentAmmo + "/" + second.maxAmmo + " | " + second.currentReserve;
+            }
         }
         else
         {
