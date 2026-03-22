@@ -7,7 +7,7 @@ public class Zombie : MonoBehaviour
     public ZombieType zombieType = ZombieType.Basic;
 
     public float speed = 2f;
-    public int health = 3;
+    public int health = 50;
     public float damageCooldown = 0.5f;
     public Slider hpBar;
 
@@ -39,21 +39,21 @@ public class Zombie : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         int wave = waveSpawner != null ? waveSpawner.currentWave : 1;
-        float waveMultiplier = 1f + (wave - 1) * 0.01f;
+        float waveMultiplier = 1f + (wave - 1) * 0.05f; // her wave %5 artar (eskiden %1)
 
         switch (zombieType)
         {
             case ZombieType.Runner:
                 speed = Mathf.Min(3.9f, PLAYER_SPEED * RUNNER_MAX_SPEED_RATIO);
-                health = Mathf.RoundToInt(2 * waveMultiplier);
+                health = Mathf.RoundToInt(35 * waveMultiplier);
                 break;
             case ZombieType.Tank:
                 speed = Mathf.Min(1f * waveMultiplier, PLAYER_SPEED * 0.5f);
-                health = Mathf.RoundToInt(6 * waveMultiplier);
+                health = Mathf.RoundToInt(150 * waveMultiplier);
                 break;
-            default:
+            default: // Basic
                 speed = Mathf.Min(2f * waveMultiplier, PLAYER_SPEED * 0.7f);
-                health = Mathf.RoundToInt(3 * waveMultiplier);
+                health = Mathf.RoundToInt(50 * waveMultiplier);
                 break;
         }
 
@@ -64,28 +64,41 @@ public class Zombie : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
-    {
-        if (player == null) return;
-        Vector2 direction = (player.position - transform.position).normalized;
+   void FixedUpdate()
+{
+    if (player == null) return;
+    Vector2 direction = (player.position - transform.position).normalized;
+    
+    // Knockback varsa hareket ettirme
+    if (rb.linearVelocity.magnitude < 0.1f || Vector2.Dot(rb.linearVelocity.normalized, direction) > 0)
         rb.linearVelocity = direction * speed;
 
-        if (touchingPlayer)
+    if (touchingPlayer)
+    {
+        if (Time.time - lastDamageTime >= damageCooldown)
         {
-            if (Time.time - lastDamageTime >= damageCooldown)
-            {
-                lastDamageTime = Time.time;
-                PlayerController pc = player.GetComponent<PlayerController>();
-                if (pc != null) pc.TakeDamage(1);
-            }
+            lastDamageTime = Time.time;
+            PlayerController pc = player.GetComponent<PlayerController>();
+            if (pc != null) pc.TakeDamage(1);
         }
     }
-
-    public void TakeDamage(int amount)
+}
+    public void TakeDamage(int amount, Vector2 knockbackDir, float knockbackForce)
     {
         health -= amount;
         if (hpBar != null) hpBar.value = health;
+
+        // Knockback
+        if (rb != null && knockbackForce > 0)
+            rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
+
         if (health <= 0) Die();
+    }
+
+    // Eski TakeDamage — geriye dönük uyumluluk için
+    public void TakeDamage(int amount)
+    {
+        TakeDamage(amount, Vector2.zero, 0f);
     }
 
     void Die()
@@ -102,11 +115,13 @@ public class Zombie : MonoBehaviour
                 Instantiate(healthPackPrefab, transform.position, Quaternion.identity);
         }
 
-        // Fragment drop
+        // Fragment drop — %3'ten basla, her wave +%0.5, max %14
         WeaponSystem weaponSystem = player?.GetComponent<WeaponSystem>();
         float weaponBonus = weaponSystem != null ? weaponSystem.ActiveWeapon.dropRateBonus : 0f;
         float zombieBonus = GetZombieDropBonus();
-        float totalDropRate = (14f + weaponBonus + zombieBonus) / 100f;
+        int wave = waveSpawner != null ? waveSpawner.currentWave : 1;
+        float baseRate = Mathf.Min(3f + (wave - 1) * 0.5f, 14f); // %3'ten baslar, max %14
+        float totalDropRate = (baseRate + weaponBonus + zombieBonus) / 100f;
 
         if (Random.value < totalDropRate)
         {

@@ -4,6 +4,7 @@ public class Bullet : MonoBehaviour
 {
     public float speed = 20f;
     public int damage = 1;
+    public float knockbackForce = 0.5f; // PlayerController tarafından set edilecek
     Vector2 direction;
 
     void Start()
@@ -26,7 +27,7 @@ public class Bullet : MonoBehaviour
         Zombie zombie = other.GetComponent<Zombie>();
         if (zombie != null)
         {
-            zombie.TakeDamage(damage);
+            zombie.TakeDamage(damage, direction, knockbackForce);
             Destroy(gameObject);
             return;
         }

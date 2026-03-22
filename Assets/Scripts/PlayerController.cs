@@ -66,8 +66,10 @@ public class PlayerController : MonoBehaviour
     void Shoot(Vector2 direction)
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-        bullet.GetComponent<Bullet>().SetDirection(direction);
-        bullet.GetComponent<Bullet>().damage = weaponSystem.ActiveWeapon.damage;
+        Bullet b = bullet.GetComponent<Bullet>();
+        b.SetDirection(direction);
+        b.damage = weaponSystem.ActiveWeapon.damage;
+        b.knockbackForce = weaponSystem.GetKnockback();
     }
 
     void ShootShotgun(Vector2 direction)
@@ -81,9 +83,14 @@ public class PlayerController : MonoBehaviour
             Vector2 pelletDir = RotateVector(direction, angle);
 
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            bullet.GetComponent<Bullet>().SetDirection(pelletDir);
-            bullet.GetComponent<Bullet>().damage = weaponSystem.ActiveWeapon.damage;
+            Bullet b = bullet.GetComponent<Bullet>();
+            b.SetDirection(pelletDir);
+            b.damage = weaponSystem.ActiveWeapon.damage;
+            b.knockbackForce = weaponSystem.GetKnockback();
         }
+
+        // Shotgun recoil — oyuncu hafif geri gider
+        rb.AddForce(-direction * 1.5f, ForceMode2D.Impulse);
     }
 
     Vector2 RotateVector(Vector2 v, float degrees)

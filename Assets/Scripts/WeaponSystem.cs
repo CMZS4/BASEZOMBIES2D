@@ -59,12 +59,13 @@ public class WeaponSystem : MonoBehaviour
     {
         _weapons = new Weapon[]
         {
-            new Weapon("Pistol",  1, 2f,   12, 999, 0f,  AmmoType.Unlimited, false),
-            new Weapon("Glock",   1, 3.5f, 20, 100, 1.5f, AmmoType.ACP45),
-            new Weapon("MP5",     2, 8f,   25, 125, 2.0f, AmmoType.Ammo545),
-            new Weapon("AK47",    3, 5f,   30,  90, 3.0f, AmmoType.Ammo762),
-            new Weapon("Shotgun", 5, 1f,    6,  48, 1.0f, AmmoType.Gauge12, false, true),
-            new Weapon("M249",    4, 10f,  50, 100, 4.0f, AmmoType.Ammo556),
+            //        isim      hasar  ateşhızı  sarjör  yedek   dropBonus  ammoType           sınırsız
+            new Weapon("Pistol",   5,  2f,   12, 999,  0f,    AmmoType.Unlimited, false),
+            new Weapon("Glock",    7,  3.5f, 20, 100,  0.25f, AmmoType.ACP45),
+            new Weapon("MP5",      8,  8f,   25, 125,  0.5f,  AmmoType.Ammo545),
+            new Weapon("AK47",     13, 5f,   30,  90,  1.0f,  AmmoType.Ammo762),
+            new Weapon("Shotgun",  10, 1f,    6,  48,  0.40f, AmmoType.Gauge12, false, true),
+            new Weapon("M249",     10, 10f,  50, 100,  1.5f,  AmmoType.Ammo556),
         };
     }
 
@@ -75,6 +76,19 @@ public class WeaponSystem : MonoBehaviour
         return 14f + ActiveWeapon.dropRateBonus;
     }
 
+public float GetKnockback()
+{
+    switch (activeWeaponIndex)
+    {
+        case 0: return 0.2f;  // Pistol
+        case 1: return 0.2f;  // Glock
+        case 2: return 0.1f;  // MP5
+        case 3: return 0.5f;  // AK47
+        case 4: return 1.0f;  // Shotgun
+        case 5: return 0.1f;  // M249
+        default: return 0.2f;
+    }
+}
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Q))
@@ -87,7 +101,7 @@ public class WeaponSystem : MonoBehaviour
         int temp = activeWeaponIndex;
         activeWeaponIndex = secondWeaponIndex;
         secondWeaponIndex = temp;
-        Debug.Log("Silah değişti: " + ActiveWeapon.weaponName);
+        Debug.Log("Silah degisti: " + ActiveWeapon.weaponName);
     }
 
     public bool CanShoot()
@@ -102,11 +116,9 @@ public class WeaponSystem : MonoBehaviour
 
     public void Reload()
     {
-        // Pistol - yedek sınırsız
         if (ActiveWeapon.ammoType == AmmoType.Unlimited)
         {
             ActiveWeapon.currentAmmo = ActiveWeapon.maxAmmo;
-            Debug.Log("Pistol dolduruldu!");
             return;
         }
 
@@ -124,7 +136,6 @@ public class WeaponSystem : MonoBehaviour
             if (w.ammoType == type)
             {
                 w.currentReserve = Mathf.Min(w.currentReserve + amount, w.maxReserve);
-                Debug.Log(type + " mermi eklendi: " + amount);
             }
         }
     }

@@ -5,14 +5,14 @@ using System.Collections;
 public class Boss : MonoBehaviour
 {
     public float speed = 2f;
-    public int health = 50;
+    public int health = 600;
     public float boulderInterval = 15f;
     public float shockwaveInterval = 10f;
     public float shockwaveRadius = 3f;
     public int shockwaveDamage = 2;
     public int boulderDamage = 3;
     public GameObject boulderPrefab;
-    public GameObject blindBoxPrefab; // YENİ
+    public GameObject blindBoxPrefab;
     public Slider hpBar;
 
     Transform player;
@@ -103,12 +103,10 @@ public class Boss : MonoBehaviour
         if (waveSpawner != null)
             waveSpawner.OnBossDied();
 
-        // Blind Box drop
         if (blindBoxPrefab != null)
         {
             Vector2 offset = Random.insideUnitCircle * 0.5f;
             Instantiate(blindBoxPrefab, transform.position + (Vector3)offset, Quaternion.identity);
-            Debug.Log("Boss Blind Box düşürdü!");
         }
 
         Destroy(gameObject);
