@@ -30,7 +30,7 @@ public class ClaimUI : MonoBehaviour
     {
         claimPanel.SetActive(true);
         panelAcik = true;
-        Time.timeScale = 0f; // oyunu dondur
+        Time.timeScale = 0f;
 
         if (fragmentInfoText != null && FragmentManager.instance != null)
             fragmentInfoText.text = "Fragments: " + FragmentManager.instance.GetFragments();
@@ -40,7 +40,7 @@ public class ClaimUI : MonoBehaviour
     {
         claimPanel.SetActive(false);
         panelAcik = false;
-        Time.timeScale = 1f; // oyunu devam ettir
+        Time.timeScale = 1f;
         waveSpawner.ContinueGame();
     }
 
@@ -51,13 +51,14 @@ public class ClaimUI : MonoBehaviour
         Time.timeScale = 1f;
 
         int fragments = FragmentManager.instance != null ? FragmentManager.instance.GetFragments() : 0;
-        Debug.Log("CLAIMED! Fragments: " + fragments);
+
+        // Fragmentleri PlayerPrefs'e kaydet
+        FragmentManager.instance?.ClaimFragments();
 
         WaveSpawner ws = FindObjectOfType<WaveSpawner>();
         int wave = ws != null ? ws.currentWave : 0;
         int kills = ws != null ? ws.totalKills : 0;
 
         GameOverManager.instance.ShowGameOver(wave, kills, fragments);
-        FragmentManager.instance?.ResetFragments();
     }
 }

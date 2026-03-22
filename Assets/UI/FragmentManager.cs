@@ -25,6 +25,15 @@ public class FragmentManager : MonoBehaviour
         UpdateUI();
     }
 
+    // Claim edilince toplam fragment'e ekle ve sıfırla
+    public void ClaimFragments()
+    {
+        int total = PlayerPrefs.GetInt("TotalFragments", 0);
+        PlayerPrefs.SetInt("TotalFragments", total + fragmentCount);
+        PlayerPrefs.Save();
+        ResetFragments();
+    }
+
     void UpdateUI()
     {
         if (fragmentText != null)

@@ -21,6 +21,24 @@ public class InventorySystem : MonoBehaviour
         player = GetComponent<PlayerController>();
         waveSpawner = FindObjectOfType<WaveSpawner>();
         weaponSystem = GetComponent<WeaponSystem>();
+
+        // Shop'tan satın alınanları yükle
+        LoadFromShop();
+    }
+
+    void LoadFromShop()
+    {
+        healthPackCount += PlayerPrefs.GetInt("HPPackCount", 0);
+        ammoPackCount += PlayerPrefs.GetInt("AmmoPackCount", 0);
+        barricadeCount += PlayerPrefs.GetInt("BarricadeCount", 0);
+        speedBoostCount += PlayerPrefs.GetInt("SpeedBoostCount", 0);
+
+        // Yükledikten sonra sıfırla (bir kez kullanılsın)
+        PlayerPrefs.SetInt("HPPackCount", 0);
+        PlayerPrefs.SetInt("AmmoPackCount", 0);
+        PlayerPrefs.SetInt("BarricadeCount", 0);
+        PlayerPrefs.SetInt("SpeedBoostCount", 0);
+        PlayerPrefs.Save();
     }
 
     void Update()
@@ -37,7 +55,6 @@ public class InventorySystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
             UseSpeedBoost();
 
-        // Hız boost timer
         if (isBoosted)
         {
             boostTimer -= Time.deltaTime;
@@ -69,11 +86,8 @@ public class InventorySystem : MonoBehaviour
 
         var weapon = weaponSystem.ActiveWeapon;
 
-        // Pistol sınırsız, ammo pack'e gerek yok
         if (weapon.ammoType == AmmoType.Unlimited)
-        {
             weapon.currentAmmo = weapon.maxAmmo;
-        }
         else
         {
             weapon.currentAmmo = weapon.maxAmmo;
@@ -81,7 +95,6 @@ public class InventorySystem : MonoBehaviour
         }
 
         ammoPackCount--;
-        Debug.Log("Ammo Pack kullanıldı! " + weapon.weaponName + " full!");
     }
 
     public void UseSpeedBoost()
@@ -93,7 +106,6 @@ public class InventorySystem : MonoBehaviour
         isBoosted = true;
         boostTimer = speedBoostDuration;
         player.speed *= speedBoostMultiplier;
-        Debug.Log("Hız artırıcı kullanıldı!");
     }
 
     void PlaceBarricade()
