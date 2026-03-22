@@ -21,6 +21,9 @@ public class UIManager : MonoBehaviour
 
     [Header("Envanter")]
     public TextMeshProUGUI healthPackText;
+    public TextMeshProUGUI barricadeText;
+    public TextMeshProUGUI ammoPackText;
+    public TextMeshProUGUI speedBoostText;
     public TextMeshProUGUI fragmentText;
 
     PlayerController player;
@@ -55,7 +58,6 @@ public class UIManager : MonoBehaviour
         var active = weaponSystem.ActiveWeapon;
         weaponNameText.text = active.weaponName;
 
-        // Pistol sınırsız, diğerleri şarjör/yedek göster
         if (active.unlimitedAmmo)
             ammoText.text = active.currentAmmo + "/" + active.maxAmmo + " ∞";
         else
@@ -83,7 +85,16 @@ public class UIManager : MonoBehaviour
 
         // Envanter
         if (healthPackText != null)
-            healthPackText.text = "HP: " + inventory.healthPackCount + " | B: " + inventory.barricadeCount;
+            healthPackText.text = "HP Pack: " + inventory.healthPackCount;
+
+        if (barricadeText != null)
+            barricadeText.text = "Barikat: " + inventory.barricadeCount;
+
+        if (ammoPackText != null)
+            ammoPackText.text = "Ammo Pack: " + inventory.ammoPackCount;
+
+        if (speedBoostText != null)
+            speedBoostText.text = "Speed: " + inventory.speedBoostCount;
 
         // Fragment
         if (fragmentText != null && FragmentManager.instance != null)

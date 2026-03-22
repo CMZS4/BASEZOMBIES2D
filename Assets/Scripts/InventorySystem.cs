@@ -4,14 +4,23 @@ public class InventorySystem : MonoBehaviour
 {
     public int healthPackCount = 0;
     public int barricadeCount = 0;
+    public int ammoPackCount = 0;
+    public int speedBoostCount = 0;
+
+    public float speedBoostMultiplier = 1.5f;
+    public float speedBoostDuration = 5f;
 
     PlayerController player;
     WaveSpawner waveSpawner;
+    WeaponSystem weaponSystem;
+    bool isBoosted = false;
+    float boostTimer = 0f;
 
     void Start()
     {
         player = GetComponent<PlayerController>();
         waveSpawner = FindObjectOfType<WaveSpawner>();
+        weaponSystem = GetComponent<WeaponSystem>();
     }
 
     void Update()
@@ -19,39 +28,80 @@ public class InventorySystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
             UseHealthPack();
 
+        if (Input.GetKeyDown(KeyCode.F))
+            UseAmmoPack();
+
         if (Input.GetKeyDown(KeyCode.B))
             PlaceBarricade();
+
+        if (Input.GetKeyDown(KeyCode.X))
+            UseSpeedBoost();
+
+        // Hız boost timer
+        if (isBoosted)
+        {
+            boostTimer -= Time.deltaTime;
+            if (boostTimer <= 0)
+            {
+                isBoosted = false;
+                player.speed /= speedBoostMultiplier;
+            }
+        }
     }
 
-    public void AddHealthPack()
-    {
-        healthPackCount++;
-        Debug.Log("Sağlık paketi alındı! Toplam: " + healthPackCount);
-    }
-
-    public void AddBarricade()
-    {
-        barricadeCount++;
-        Debug.Log("Barikat alındı! Toplam: " + barricadeCount);
-    }
+    public void AddHealthPack() { healthPackCount++; }
+    public void AddBarricade() { barricadeCount++; }
+    public void AddAmmoPack() { ammoPackCount++; }
+    public void AddSpeedBoost() { speedBoostCount++; }
 
     public void UseHealthPack()
     {
-        if (healthPackCount <= 0) { Debug.Log("Sağlık paketi yok!"); return; }
-        if (player.currentHealth >= player.maxHealth) { Debug.Log("Can zaten dolu!"); return; }
-
+        if (healthPackCount <= 0) return;
+        if (player.currentHealth >= player.maxHealth) return;
         healthPackCount--;
         player.currentHealth = Mathf.Min(player.currentHealth + 3, player.maxHealth);
-        Debug.Log("Sağlık paketi kullanıldı! Can: " + player.currentHealth);
+    }
+
+    public void UseAmmoPack()
+    {
+        if (ammoPackCount <= 0) return;
+        if (weaponSystem == null) return;
+
+        var weapon = weaponSystem.ActiveWeapon;
+
+        // Pistol sınırsız, ammo pack'e gerek yok
+        if (weapon.ammoType == AmmoType.Unlimited)
+        {
+            weapon.currentAmmo = weapon.maxAmmo;
+        }
+        else
+        {
+            weapon.currentAmmo = weapon.maxAmmo;
+            weapon.currentReserve = weapon.maxReserve;
+        }
+
+        ammoPackCount--;
+        Debug.Log("Ammo Pack kullanıldı! " + weapon.weaponName + " full!");
+    }
+
+    public void UseSpeedBoost()
+    {
+        if (speedBoostCount <= 0) return;
+        if (isBoosted) return;
+
+        speedBoostCount--;
+        isBoosted = true;
+        boostTimer = speedBoostDuration;
+        player.speed *= speedBoostMultiplier;
+        Debug.Log("Hız artırıcı kullanıldı!");
     }
 
     void PlaceBarricade()
     {
-        if (barricadeCount <= 0) { Debug.Log("Barikat yok!"); return; }
+        if (barricadeCount <= 0) return;
 
-        // En yakın pencereyi bul
         int closestWindow = -1;
-        float closestDist = 3f; // max 3 birim mesafe
+        float closestDist = 3f;
 
         for (int i = 0; i < waveSpawner.windows.Length; i++)
         {
@@ -67,11 +117,6 @@ public class InventorySystem : MonoBehaviour
         {
             barricadeCount--;
             waveSpawner.PlaceBarricade(closestWindow);
-            Debug.Log("Barikat kuruldu! Pencere " + closestWindow);
-        }
-        else
-        {
-            Debug.Log("Yakında pencere yok!");
         }
     }
 }
