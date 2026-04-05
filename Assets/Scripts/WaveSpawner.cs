@@ -9,6 +9,8 @@ public class WaveSpawner : MonoBehaviour
     public GameObject tankZombiePrefab;
     public GameObject smokerZombiePrefab;
     public GameObject bossZombiePrefab;
+    public GameObject boss2ZombiePrefab;
+    public GameObject boss3ZombiePrefab;
     public Transform[] windows;
 
     public int currentWave = 0;
@@ -62,10 +64,19 @@ public class WaveSpawner : MonoBehaviour
         {
             if (waitingForClaim) { yield return null; continue; }
 
-            currentWave++;
-            Debug.Log("=== WAVE " + currentWave + " BAŞLADI ===");
+            // Max 40 wave
+            if (currentWave >= 40)
+            {
+                Debug.Log("=== DEMO BITTI ===");
+                // TODO: Demo bitis ekrani goster
+                yield break;
+            }
 
-            bool isBossWave = currentWave % 10 == 0 && bossCount < 8 && bossZombiePrefab != null;
+            currentWave++;
+            Debug.Log("=== WAVE " + currentWave + " BASLADI ===");
+
+            bool isBossWave = currentWave == 10 || currentWave == 20 || 
+                              currentWave == 30 || currentWave == 40;
 
             float waveTime = isBossWave ? 120f :
                 Mathf.Min(minWaveTime + (currentWave - 1) * waveTimeIncrement, maxWaveTime);
@@ -76,24 +87,23 @@ public class WaveSpawner : MonoBehaviour
             waveTimeRemaining = waveTime;
             waveActive = true;
 
-            Debug.Log($"Wave {currentWave} | Süre: {waveTime}s | Zombie: {zombieCount} | Interval: {spawnInterval:F1}s");
-
+            // Boss spawn
             if (isBossWave)
             {
                 bossAlive = true;
                 bossCount++;
-                Transform window = windows[Random.Range(0, windows.Length)];
-                Instantiate(bossZombiePrefab, window.position, Quaternion.identity);
-                zombiesAlive++;
-                Debug.Log("BOSS SPAWNED! Boss #" + bossCount);
+                SpawnBoss();
             }
 
             yield return StartCoroutine(SpawnWave(zombieCount, spawnInterval));
             yield return new WaitUntil(() => !waveActive);
 
-            Debug.Log("=== WAVE " + currentWave + " BİTTİ ===");
+            Debug.Log("=== WAVE " + currentWave + " BITTI ===");
 
-            if (currentWave % 5 == 0)
+            // Claim mantigi: Wave 5 ve her boss waveden sonra
+            bool shouldClaim = currentWave == 5 || isBossWave;
+
+            if (shouldClaim)
             {
                 waitingForClaim = true;
                 claimUI.ShowClaimScreen();
@@ -101,6 +111,56 @@ public class WaveSpawner : MonoBehaviour
             else
             {
                 yield return new WaitForSeconds(5f);
+            }
+        }
+    }
+
+    void SpawnBoss()
+    {
+        if (currentWave == 10 && bossZombiePrefab != null)
+        {
+            // Boss 1
+            Transform window = windows[Random.Range(0, windows.Length)];
+            Instantiate(bossZombiePrefab, window.position, Quaternion.identity);
+            zombiesAlive++;
+            Debug.Log("BOSS 1 SPAWNED!");
+        }
+        else if (currentWave == 20 && boss2ZombiePrefab != null)
+        {
+            // Boss 2
+            Transform window = windows[Random.Range(0, windows.Length)];
+            Instantiate(boss2ZombiePrefab, window.position, Quaternion.identity);
+            zombiesAlive++;
+            Debug.Log("BOSS 2 SPAWNED!");
+        }
+        else if (currentWave == 30 && boss3ZombiePrefab != null)
+        {
+            // Boss 3
+            Transform window = windows[Random.Range(0, windows.Length)];
+            Instantiate(boss3ZombiePrefab, window.position, Quaternion.identity);
+            zombiesAlive++;
+            Debug.Log("BOSS 3 SPAWNED!");
+        }
+        else if (currentWave == 40)
+        {
+            // FINAL — Boss 1 + 2 + 3 aynı anda!
+            Debug.Log("FINAL BOSS WAVE!");
+            Transform[] spawnPoints = windows;
+
+            if (bossZombiePrefab != null)
+            {
+                Instantiate(bossZombiePrefab, spawnPoints[0].position, Quaternion.identity);
+                zombiesAlive++;
+            }
+            if (boss2ZombiePrefab != null)
+            {
+                Instantiate(boss2ZombiePrefab, spawnPoints[1 % spawnPoints.Length].position, Quaternion.identity);
+                zombiesAlive++;
+            }
+            if (boss3ZombiePrefab != null)
+            {
+                Instantiate(boss3ZombiePrefab, spawnPoints[2 % spawnPoints.Length].position, Quaternion.identity);
+                zombiesAlive++;
             }
         }
     }
@@ -133,15 +193,12 @@ public class WaveSpawner : MonoBehaviour
 
     GameObject GetZombiePrefab()
     {
-        // Wave 15+: Tank ekle (%30)
         if (currentWave >= 15 && tankZombiePrefab != null && Random.value < 0.3f)
             return tankZombiePrefab;
 
-        // Wave 10+: Smoker ekle (%20)
         if (currentWave >= 10 && smokerZombiePrefab != null && Random.value < 0.2f)
             return smokerZombiePrefab;
 
-        // Wave 5+: Runner ekle (wave başına %10, max %50)
         if (currentWave >= 5 && runnerZombiePrefab != null)
         {
             float runnerChance = Mathf.Min(0.10f + (currentWave - 5) * 0.05f, 0.50f);
@@ -163,7 +220,7 @@ public class WaveSpawner : MonoBehaviour
         zombiesAlive--;
         totalKills++;
         bossAlive = false;
-        Debug.Log("Boss öldü!");
+        Debug.Log("Boss oldu!");
     }
 
     public void ContinueGame()
@@ -176,7 +233,6 @@ public class WaveSpawner : MonoBehaviour
         if (windowIndex >= 0 && windowIndex < windowBarricadeTimers.Length)
         {
             windowBarricadeTimers[windowIndex] = 30f;
-            Debug.Log("Barikat kuruldu! Pencere " + windowIndex + " 30 saniye kapalı.");
         }
     }
 }

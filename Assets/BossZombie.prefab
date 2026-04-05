@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Boss
   speed: 2
-  health: 50
+  health: 500
   boulderInterval: 3
   shockwaveInterval: 8
   shockwaveRadius: 5
