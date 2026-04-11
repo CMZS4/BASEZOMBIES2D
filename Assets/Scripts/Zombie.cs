@@ -39,7 +39,7 @@ public class Zombie : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         int wave = waveSpawner != null ? waveSpawner.currentWave : 1;
-        float waveMultiplier = 1f + (wave - 1) * 0.05f; // her wave %5 artar (eskiden %1)
+        float waveMultiplier = 1f + (wave - 1) * 0.05f;
 
         switch (zombieType)
         {
@@ -51,7 +51,7 @@ public class Zombie : MonoBehaviour
                 speed = Mathf.Min(1f * waveMultiplier, PLAYER_SPEED * 0.5f);
                 health = Mathf.RoundToInt(150 * waveMultiplier);
                 break;
-            default: // Basic
+            default:
                 speed = Mathf.Min(2f * waveMultiplier, PLAYER_SPEED * 0.7f);
                 health = Mathf.RoundToInt(50 * waveMultiplier);
                 break;
@@ -64,41 +64,61 @@ public class Zombie : MonoBehaviour
         }
     }
 
-   void FixedUpdate()
-{
-    if (player == null) return;
-    Vector2 direction = (player.position - transform.position).normalized;
-    
-    // Knockback varsa hareket ettirme
-    if (rb.linearVelocity.magnitude < 0.1f || Vector2.Dot(rb.linearVelocity.normalized, direction) > 0)
-        rb.linearVelocity = direction * speed;
-
-    if (touchingPlayer)
+    void FixedUpdate()
     {
-        if (Time.time - lastDamageTime >= damageCooldown)
+        if (player == null) return;
+        Vector2 direction = (player.position - transform.position).normalized;
+
+        if (rb.linearVelocity.magnitude < 0.1f || Vector2.Dot(rb.linearVelocity.normalized, direction) > 0)
+            rb.linearVelocity = direction * speed;
+
+        if (touchingPlayer)
         {
-            lastDamageTime = Time.time;
-            PlayerController pc = player.GetComponent<PlayerController>();
-            if (pc != null) pc.TakeDamage(1);
+            if (Time.time - lastDamageTime >= damageCooldown)
+            {
+                lastDamageTime = Time.time;
+                PlayerController pc = player.GetComponent<PlayerController>();
+                if (pc != null) pc.TakeDamage(1);
+            }
         }
     }
-}
+
     public void TakeDamage(int amount, Vector2 knockbackDir, float knockbackForce)
     {
         health -= amount;
         if (hpBar != null) hpBar.value = health;
 
-        // Knockback
         if (rb != null && knockbackForce > 0)
             rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
+
+        SpawnDamageNumber(amount);
 
         if (health <= 0) Die();
     }
 
-    // Eski TakeDamage — geriye dönük uyumluluk için
     public void TakeDamage(int amount)
     {
         TakeDamage(amount, Vector2.zero, 0f);
+    }
+
+    void SpawnDamageNumber(int damage)
+    {
+        GameObject prefab = Resources.Load<GameObject>("DamageNumber");
+        if (prefab == null) return;
+
+        Vector3 spawnPos = transform.position + new Vector3(
+            Random.Range(-0.3f, 0.3f), 0.5f, 0f);
+
+        GameObject obj = Instantiate(prefab, spawnPos, Quaternion.identity);
+        DamageNumber dn = obj.GetComponent<DamageNumber>();
+        if (dn == null) return;
+
+        Color col;
+        if (damage >= 50)      col = new Color(1f, 0.3f, 0f);
+        else if (damage >= 20) col = new Color(1f, 0.85f, 0f);
+        else                   col = Color.white;
+
+        dn.Init(damage, col);
     }
 
     void Die()
@@ -106,7 +126,6 @@ public class Zombie : MonoBehaviour
         if (waveSpawner != null)
             waveSpawner.OnZombieDied();
 
-        // Health pack drop
         float dropChance = Mathf.Max(0.05f - (waveSpawner.currentWave * 0.001f), 0.005f);
         if (Random.value < dropChance)
         {
@@ -115,12 +134,11 @@ public class Zombie : MonoBehaviour
                 Instantiate(healthPackPrefab, transform.position, Quaternion.identity);
         }
 
-        // Fragment drop — %3'ten basla, her wave +%0.5, max %14
         WeaponSystem weaponSystem = player?.GetComponent<WeaponSystem>();
         float weaponBonus = weaponSystem != null ? weaponSystem.ActiveWeapon.dropRateBonus : 0f;
         float zombieBonus = GetZombieDropBonus();
         int wave = waveSpawner != null ? waveSpawner.currentWave : 1;
-        float baseRate = Mathf.Min(3f + (wave - 1) * 0.5f, 14f); // %3'ten baslar, max %14
+        float baseRate = Mathf.Min(3f + (wave - 1) * 0.5f, 14f);
         float totalDropRate = (baseRate + weaponBonus + zombieBonus) / 100f;
 
         if (Random.value < totalDropRate)
@@ -133,7 +151,6 @@ public class Zombie : MonoBehaviour
             }
         }
 
-        // Mermi drop - %6 ihtimalle
         if (Random.value < 0.06f)
         {
             int randomIndex = Random.Range(0, ammoPrefabNames.Length);
