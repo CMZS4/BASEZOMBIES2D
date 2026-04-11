@@ -92,6 +92,7 @@ public class Zombie : MonoBehaviour
             rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
 
         SpawnDamageNumber(amount);
+        SpawnBloodEffect();
 
         if (health <= 0) Die();
     }
@@ -120,6 +121,19 @@ public class Zombie : MonoBehaviour
 
         dn.Init(damage, col);
     }
+
+  void SpawnBloodEffect()
+{
+    GameObject prefab = Resources.Load<GameObject>("BloodParticle");
+    if (prefab == null) return;
+
+    int count = Random.Range(4, 7);
+    for (int i = 0; i < count; i++)
+    {
+        Vector3 offset = new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(-0.2f, 0.2f), 0f);
+        Instantiate(prefab, transform.position + offset, Quaternion.identity);
+    }
+}
 
     void Die()
     {

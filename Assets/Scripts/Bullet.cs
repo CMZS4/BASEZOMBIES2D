@@ -4,7 +4,8 @@ public class Bullet : MonoBehaviour
 {
     public float speed = 20f;
     public int damage = 1;
-    public float knockbackForce = 0.5f; // PlayerController tarafından set edilecek
+    public float knockbackForce = 0.5f;
+    public float splashRadius = 1.2f;
     Vector2 direction;
 
     void Start()
@@ -28,6 +29,7 @@ public class Bullet : MonoBehaviour
         if (zombie != null)
         {
             zombie.TakeDamage(damage, direction, knockbackForce);
+            SplashDamage(zombie.gameObject);
             Destroy(gameObject);
             return;
         }
@@ -45,6 +47,25 @@ public class Bullet : MonoBehaviour
         {
             boss.TakeDamage(damage);
             Destroy(gameObject);
+        }
+    }
+
+    void SplashDamage(GameObject hitObject)
+    {
+        int splashAmount = Mathf.Max(1, Mathf.RoundToInt(damage * 0.018f)); // %1.8
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, splashRadius);
+
+        foreach (Collider2D col in hits)
+        {
+            if (col.gameObject == hitObject) continue;
+
+            Zombie z = col.GetComponent<Zombie>();
+            if (z != null)
+                z.TakeDamage(splashAmount, direction * 0.3f, 0.1f);
+
+            Smoker s = col.GetComponent<Smoker>();
+            if (s != null)
+                s.TakeDamage(splashAmount);
         }
     }
 }
