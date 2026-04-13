@@ -210,18 +210,22 @@ public class WaveSpawner : MonoBehaviour
     }
 
     public void OnZombieDied()
-    {
-        zombiesAlive--;
-        totalKills++;
-    }
+{
+    zombiesAlive--;
+    totalKills++;
+    if (ComboSystem.instance != null)
+        ComboSystem.instance.RegisterKill();
+}
 
-    public void OnBossDied()
-    {
-        zombiesAlive--;
-        totalKills++;
-        bossAlive = false;
-        Debug.Log("Boss oldu!");
-    }
+public void OnBossDied()
+{
+    zombiesAlive--;
+    totalKills++;
+    bossAlive = false;
+    if (ComboSystem.instance != null)
+        ComboSystem.instance.RegisterKill();
+    Debug.Log("Boss oldu!");
+}
 
     public void ContinueGame()
     {

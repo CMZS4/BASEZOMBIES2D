@@ -25,11 +25,14 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        float multiplier = ComboSystem.instance != null ? ComboSystem.instance.damageMultiplier : 1f;
+        int finalDamage = Mathf.RoundToInt(damage * multiplier);
+
         Zombie zombie = other.GetComponent<Zombie>();
         if (zombie != null)
         {
-            zombie.TakeDamage(damage, direction, knockbackForce);
-            SplashDamage(zombie.gameObject);
+            zombie.TakeDamage(finalDamage, direction, knockbackForce);
+            SplashDamage(zombie.gameObject, finalDamage);
             Destroy(gameObject);
             return;
         }
@@ -37,7 +40,7 @@ public class Bullet : MonoBehaviour
         Smoker smoker = other.GetComponent<Smoker>();
         if (smoker != null)
         {
-            smoker.TakeDamage(damage);
+            smoker.TakeDamage(finalDamage);
             Destroy(gameObject);
             return;
         }
@@ -45,14 +48,14 @@ public class Bullet : MonoBehaviour
         Boss boss = other.GetComponent<Boss>();
         if (boss != null)
         {
-            boss.TakeDamage(damage);
+            boss.TakeDamage(finalDamage);
             Destroy(gameObject);
         }
     }
 
-    void SplashDamage(GameObject hitObject)
+    void SplashDamage(GameObject hitObject, int originalDamage)
     {
-        int splashAmount = Mathf.Max(1, Mathf.RoundToInt(damage * 0.018f)); // %1.8
+        int splashAmount = Mathf.Max(1, Mathf.RoundToInt(originalDamage * 0.018f));
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, splashRadius);
 
         foreach (Collider2D col in hits)
