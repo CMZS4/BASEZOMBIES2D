@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     Vector2 movement;
     WeaponSystem weaponSystem;
     float lastFireTime;
+    Vector2 lookDir;
 
     void Start()
     {
@@ -29,7 +30,9 @@ public class PlayerController : MonoBehaviour
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0f;
-        Vector2 lookDir = (mousePos - transform.position).normalized;
+        lookDir = (mousePos - transform.position).normalized;
+
+        // Karakter mouse'a doğru dönsün
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
@@ -46,10 +49,6 @@ public class PlayerController : MonoBehaviour
 
                     weaponSystem.UseAmmo();
                     lastFireTime = Time.time;
-                }
-                else
-                {
-                    Debug.Log("Mermi bitti! R ile doldur.");
                 }
             }
         }
@@ -89,7 +88,6 @@ public class PlayerController : MonoBehaviour
             b.knockbackForce = weaponSystem.GetKnockback();
         }
 
-        // Shotgun recoil — oyuncu hafif geri gider
         rb.AddForce(-direction * 1.5f, ForceMode2D.Impulse);
     }
 
